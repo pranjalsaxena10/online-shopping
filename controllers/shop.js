@@ -47,11 +47,15 @@ exports.getCart = (req, res, next) => {
             return cart.getProducts();
         })
         .then(products => {
+            let cartTotalPrice = 0;
+            products.forEach(product => {
+                cartTotalPrice += product.price * product.cartItem.quantity;
+            });
             res.render('shop/cart', {
                 pageTitle: 'Your Cart', 
                 path: '/cart',
                 productsInCart: products,
-                totalPrice: 0
+                totalPrice: cartTotalPrice
             });
         })
         .catch(err => console.log(err));
@@ -88,17 +92,24 @@ exports.postCart = (req, res, next) => {
         })
         .then(() => res.redirect('/cart'))
         .catch(err => console.log(err));
-    // Product.getProductById(prodId, product => {
-    //     Cart.addProduct(prodId, product.price);
-    // });
-    // res.redirect('/cart');
 };
 
 exports.deleteCartItem = (req, res, next) => {
     const productId = req.body.productId;
-    const productPrice = req.body.price;
-    Cart.deleteProduct(productId, productPrice);
-    res.redirect('/cart');
+    req.user.getCart()
+        .then(cart => {
+            return cart.getProducts({ where : { id: productId } })
+        })
+        .then(products => {
+            if (products.length > 0) {
+                return products[0].cartItem.destroy();
+            }
+
+            throw new Error('No Product with given productId:: ', productId, 'are found');
+        })
+        .then(() => res.redirect('/cart'))
+        .catch(err => console.log(err));
+    
 };
 
 exports.getOrders = (req, res, next) => {

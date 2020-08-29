@@ -8,7 +8,7 @@
         <main>
             <% if (productsInCart.length > 0) { %>
                 <ul class="cart__item-list">
-                    <h3> Cart Value:: $<%= totalPrice %> </h3>
+                    <h3> Total Price:: $<%= totalPrice %> </h3>
                     <% productsInCart.forEach( cartData => { %>
                         <li class="cart__item">
                             <h1><%= cartData.title %> (<%= cartData.cartItem.quantity %>)</h1>
@@ -16,7 +16,6 @@
                             <form action="/delete-cart-item" method="POST">
                                 <button class="btn danger" type="submit">Delete</button>
                                 <input type="hidden" value="<%= cartData.id %>" name="productId">
-                                <input type="hidden" value="<%= cartData.price %>" name="price">
                             </form>
                         </li>
                     <% }) %>  

@@ -31,16 +31,6 @@ exports.postAddProduct = (req, res, next) => {
     })
     .catch(err => console.log(err));
 
-    // Product.create({
-    //     title: title,
-    //     imageUrl: imageUrl,
-    //     price: price,
-    //     description: description
-
-    // }).then((response) => {
-    //     res.redirect('/admin/products');  
-    // }).catch(err => console.log(err));
-
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -60,8 +50,7 @@ exports.postEditProduct = (req, res, next) => {
             return product.save();
 
         })
-        .then(response => {
-            console.log('Updation successful with message from Db as :: ', response);
+        .then(() => {
             res.redirect('/admin/products');
         })
         .catch(err => console.log(err));
@@ -70,7 +59,6 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getEditProduct = (req, res, next) => {
     const editMode = JSON.parse(req.query.edit);
-    console.log(editMode, 'editMode', typeof(editMode));
     if (!editMode) {
         return res.redirect('/');
     }
@@ -116,8 +104,7 @@ exports.deleteProduct = (req, res, next) => {
     .then(product => {
         return product.destroy();
     })
-    .then(response => {
-        console.log('Deletion successful with response from Sequelize:: ', response);
+    .then(() => {
         res.redirect('/admin/products');
     })
     .catch(err => console.log(err));
