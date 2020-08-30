@@ -71,6 +71,36 @@ class User {
             .catch(err => console.log(err));
     }
 
+    deleteProductFromCart(productId, deleteAll) {
+        let updatedCartItems;
+        const productInCartIndex = this.cart.items.findIndex(cartProduct => {
+            return cartProduct.productId.toString() === productId.toString();
+        });
+
+        if (deleteAll || (!deleteAll && this.cart.items[productInCartIndex].quantity === 1)) {
+            updatedCartItems = this.cart.items.filter(product => product.productId.toString() !== productId);
+
+        } else {
+            updatedCartItems = [...this.cart.items];
+
+            if (productInCartIndex >= 0) {
+                updatedCartItems[productInCartIndex].quantity = this.cart.items[productInCartIndex].quantity - 1; 
+
+            } else {
+                throw 'Product is not available in cart';
+            }
+        }
+
+        const updatedCart = {
+            items: updatedCartItems
+        };
+        const db = getDb();
+        return db.collection('users').updateOne(
+            { _id: new ObjectID(this._id)}, 
+            { $set: { cart: updatedCart } 
+        });
+    }
+    
     static fetchAll() {
         const db = getDb();
         return db.collection('users').find().toArray();

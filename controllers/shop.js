@@ -68,33 +68,14 @@ exports.postCart = (req, res, next) => {
     
 };
 
-// exports.deleteCartItem = (req, res, next) => {
-//     const productId = req.body.productId;
-//     const deleteAll = JSON.parse(req.body.deleteAll);
-//     let cartDetails; 
-//     req.user.getCart()
-//         .then(cart => {
-//             cartDetails = cart;
-//             return cart.getProducts({ where : { id: productId } })
-//         })
-//         .then(products => {
-//             if (products.length > 0) {
-//                 if(deleteAll) {
-//                     return products[0].cartItem.destroy();
-//                 }
-//                 products[0].cartItem.quantity -= 1;
-//                 if(products[0].cartItem.quantity > 0) {
-//                     return products[0].cartItem.save();
-//                 }
-//                 return products[0].cartItem.destroy();
-//             }
-
-//             throw new Error('No Product with given productId:: ', productId, 'are found');
-//         })
-//         .then(() => res.redirect('/cart'))
-//         .catch(err => console.log(err));
+exports.deleteCartItem = (req, res, next) => {
+    const productId = req.body.productId;
+    const deleteAll = JSON.parse(req.body.deleteAll);
+    req.user.deleteProductFromCart(productId, deleteAll)
+        .then(() => res.redirect('/cart'))
+        .catch(err => console.log(err));
     
-// };
+};
 
 // exports.getOrders = (req, res, next) => {
 //     res.render('shop/orders', {
