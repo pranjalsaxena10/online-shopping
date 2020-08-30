@@ -100,6 +100,38 @@ class User {
             { $set: { cart: updatedCart } 
         });
     }
+
+    addOrder() {
+        const db = getDb();
+
+        return this.getCart()
+            .then(cartItems => {
+                const order = {
+                    items: cartItems.productsInCart,
+                    totalOrderValue: cartItems.totalCartValue,
+                    user: {
+                        _id: this._id,
+                        name: this.name
+                    }
+                };
+                return db.collection('orders').insertOne(order);
+            })
+            .then(response => {
+                this.cart = { items: [] };
+                return db.collection('users')
+                    .updateOne(
+                        { _id: new ObjectID(this._id)}, 
+                        { $set: { cart: { items: [] } } 
+                    });
+            })
+            .catch(err => console.log(err));
+            
+    }
+
+    getOrders() {
+        const db = getDb();
+        return db.collection('orders').find({ 'user._id': new ObjectID(this._id) }).toArray();
+    }
     
     static fetchAll() {
         const db = getDb();
