@@ -11,23 +11,23 @@
                     <h1> Total Price: $<%= totalPrice %> </h1>
                     <% productsInCart.forEach( cartData => { %>
                         <li class="cart__item">
-                            <h1><%= cartData.title %></h1>
+                            <h1><%= cartData.productId.title %></h1>
                             <h3>Quantity: <%= cartData.quantity %></h3>
-                            <h3>Price: $<%= cartData.price %></h3>
+                            <h3>Price: $<%= cartData.productId.price %></h3>
 
                             <form action="/cart" method="post">
                                 <button class="btn">+</button>
-                                <input type="hidden" name="productId" value="<%= cartData._id %>">
+                                <input type="hidden" name="productId" value="<%= cartData.productId._id %>">
                             </form>
                             <form action="/delete-cart-item" method="POST">
                                 <button class="btn">-</button>
-                                <input type="hidden" value="<%= cartData._id %>" name="productId">
+                                <input type="hidden" value="<%= cartData.productId._id %>" name="productId">
                                 <input type="hidden" value="false" name="deleteAll">
                             </form>
 
                             <form action="/delete-cart-item" method="POST">
                                 <button class="btn danger" type="submit">Delete</button>
-                                <input type="hidden" value="<%= cartData._id %>" name="productId">
+                                <input type="hidden" value="<%= cartData.productId._id %>" name="productId">
                                 <input type="hidden" value="true" name="deleteAll">
                             </form>
                         </li>

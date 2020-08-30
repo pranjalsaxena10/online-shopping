@@ -40,42 +40,48 @@ exports.getIndex = (req, res, next) => {
 
 };
 
-// exports.getCart = (req, res, next) => {
-//     req.user
-//         .getCart()
-//         .then(cart => {
-//             res.render('shop/cart', {
-//                 pageTitle: 'Your Cart', 
-//                 path: '/cart',
-//                 productsInCart: cart.productsInCart,
-//                 totalPrice: cart.totalCartValue
-//             });
-//         })
-//         .catch(err => console.log(err));
-// };
+exports.getCart = (req, res, next) => {
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const cartItems = user.cart.items;
+            let totalCartValue = 0;
+            cartItems.forEach(cartItem => {
+                totalCartValue += cartItem.productId.price * cartItem.quantity;
+            });
+            res.render('shop/cart', {
+                pageTitle: 'Your Cart', 
+                path: '/cart',
+                productsInCart: cartItems,
+                totalPrice: totalCartValue
+            });
+        })
+        .catch(err => console.log(err));
+};
 
-// exports.postCart = (req, res, next) => {
-//     const prodId = req.body.productId;
+exports.postCart = (req, res, next) => {
+    const prodId = req.body.productId;
 
-//     Product.findById(prodId)
-//         .then(product => {
-//             return req.user.addToCart(product);
-//         })
-//         .then(result => {
-//             res.redirect('/cart');
-//         })
-//         .catch(err => console.log(err));
+    Product.findById(prodId)
+        .then(product => {
+            return req.user.addToCart(product);
+        })
+        .then(result => {
+            res.redirect('/cart');
+        })
+        .catch(err => console.log(err));
     
-// };
+};
 
-// exports.deleteCartItem = (req, res, next) => {
-//     const productId = req.body.productId;
-//     const deleteAll = JSON.parse(req.body.deleteAll);
-//     req.user.deleteProductFromCart(productId, deleteAll)
-//         .then(() => res.redirect('/cart'))
-//         .catch(err => console.log(err));
+exports.deleteCartItem = (req, res, next) => {
+    const productId = req.body.productId;
+    const deleteAll = JSON.parse(req.body.deleteAll);
+    req.user.deleteProductFromCart(productId, deleteAll)
+        .then(() => res.redirect('/cart'))
+        .catch(err => console.log(err));
     
-// };
+};
 
 // exports.postOrder = (req, res, next) => {
 //     req.user.addOrder()
