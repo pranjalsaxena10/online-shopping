@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Order = require('../models/Order');
 
 exports.getProducts = (req, res, next) => {
     Product.find()
@@ -83,26 +84,52 @@ exports.deleteCartItem = (req, res, next) => {
     
 };
 
-// exports.postOrder = (req, res, next) => {
-//     req.user.addOrder()
-//         .then(response => {
-//             res.redirect('/orders');
-//         })
-//         .catch(err => console.log(err));
-// };
+exports.postOrder = (req, res, next) => {
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            let totalPrice = 0;
+            const cartItems = user.cart.items.map(cartItem => {
+                totalPrice += cartItem.quantity * cartItem.productId.price;
+                return {
+                    quantity: cartItem.quantity,
+                    product: { ...cartItem.productId._doc }
+                }
+            });
 
-// exports.getOrders = (req, res, next) => {
-//     req.user
-//         .getOrders()
-//         .then(orders => {
-//             res.render('shop/orders', {
-//                 pageTitle: 'Your Orders', 
-//                 path: '/orders',
-//                 orders: orders
-//             });
-//         })
-//         .catch(err => console.log(err));
-// };
+            const order = new Order({
+                user: {
+                    name: req.user.name,
+                    userId: req.user._id
+                },
+                products: cartItems,
+                totalOrderValue: totalPrice
+            });
+
+            return order.save();
+        })
+        .then(response => {
+            return req.user.clearCart();
+        })
+        .then(response => {
+            res.redirect('/orders');
+        })
+        .catch(err => console.log(err));
+    
+};
+
+exports.getOrders = (req, res, next) => {
+    Order.find({ 'user.userId': req.user._id })
+        .then(orders => {
+            res.render('shop/orders', {
+                pageTitle: 'Your Orders', 
+                path: '/orders',
+                orders: orders
+            });
+        })
+        .catch(err => console.log(err));
+};
 
 // exports.getCheckout = (req, res, next) => {
 //     res.render('shop/checkout', {
