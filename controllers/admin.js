@@ -1,5 +1,5 @@
 const Product = require('../models/Product');
-
+const mongoDb = require('mongodb');
 exports.getAddProduct = (req, res, next) => {
     res.render('admin/edit-product', { 
         pageTitle: 'Add Product',
@@ -13,23 +13,14 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
+    const product = new Product(title, price, imageUrl, description);
 
-    /**
-     * req.user is a Sequelize object stored while executing app.js
-     * Sequelize provides helper methods by itself when we create associations on tables
-     * createProduct is an example of such
-     */
-
-    req.user.createProduct({
-        title: title,
-        imageUrl: imageUrl,
-        price: price,
-        description: description
-    })
-    .then((response) => {
-        res.redirect('/admin/products');  
-    })
-    .catch(err => console.log(err));
+    product.save()
+        .then((response) => {
+            console.log('product created with response as :: ', response);
+            res.redirect('/admin/products');  
+        })
+        .catch(err => console.log(err));
 
 };
 
@@ -39,18 +30,12 @@ exports.postEditProduct = (req, res, next) => {
     const updatedPrice = req.body.price;
     const updatedDescription = req.body.description;
     const productId = req.body.id;
-
-    Product.findByPk(productId)
-        .then(product => {
-            product.title = updatedTitle;
-            product.imageUrl = updatedImageUrl;
-            product.price = updatedPrice;
-            product.description = updatedDescription;
-            product.title = updatedTitle;
-            return product.save();
-
-        })
-        .then(() => {
+    const objectId = new mongoDb.ObjectID(productId);
+    const product = new Product(updatedTitle, updatedPrice, updatedImageUrl, updatedDescription, objectId);
+    
+    product.save()
+        .then(response => {
+            console.log('product updated with response as :: ', response);
             res.redirect('/admin/products');
         })
         .catch(err => console.log(err));
@@ -65,10 +50,8 @@ exports.getEditProduct = (req, res, next) => {
     const productId = req.params.productId;
     if (productId) {
 
-        req.user.getProducts({ where: { id: productId } })
-        // Product.findByPk(productId)
-            .then((products) => {
-                const product = products[0];
+        Product.findById(productId)
+            .then((product) => {
                 if (!product) {
                     return res.redirect('/');
                 }
@@ -86,9 +69,9 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    req.user.getProducts()
-    // Product.findAll()
+    Product.fetchAll()
         .then((response) => {
+            console.log(response)
             res.render('admin/products', { 
                 pageTitle: 'Admin Products', 
                 products: response,
@@ -100,12 +83,13 @@ exports.getProducts = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
     const productId = req.body.id;
-    Product.findByPk(productId)
-    .then(product => {
-        return product.destroy();
+    Product.deleteById(productId)
+    .then(response => {
+        console.log('Deletion Successful with response as :: ', response);
+        res.redirect('/admin/products');
     })
     .then(() => {
-        res.redirect('/admin/products');
+        
     })
     .catch(err => console.log(err));
     
