@@ -12,6 +12,8 @@ const shopRoutes = require('./routes/shop');
 
 const mongoConnect = require('./util/database').mongoConnect;
 
+const User = require('./models/User');
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -19,6 +21,15 @@ app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(rootDir, 'public')));
+
+app.use((req, res, next) => {
+    User.findById('5f4b3ca0acd764f57b10420c')
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);

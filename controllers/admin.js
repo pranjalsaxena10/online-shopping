@@ -13,7 +13,14 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    const product = new Product(title, price, imageUrl, description);
+    const product = new Product(
+        title, 
+        price, 
+        imageUrl, 
+        description,
+        null,
+        req.user._id
+    );
 
     product.save()
         .then((response) => {
@@ -31,7 +38,14 @@ exports.postEditProduct = (req, res, next) => {
     const updatedDescription = req.body.description;
     const productId = req.body.id;
     const objectId = new mongoDb.ObjectID(productId);
-    const product = new Product(updatedTitle, updatedPrice, updatedImageUrl, updatedDescription, objectId);
+    const product = new Product(
+        updatedTitle,
+        updatedPrice,
+        updatedImageUrl, 
+        updatedDescription, 
+        objectId,
+        req.user._id
+    );
     
     product.save()
         .then(response => {
