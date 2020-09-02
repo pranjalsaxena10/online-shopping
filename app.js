@@ -36,6 +36,18 @@ app.use(session({
     store: sessionStore
 }));
 
+app.use((req, res, next) => {
+    if (!req.session.user) {
+      return next();
+    }
+    User.findById(req.session.user._id)
+      .then(user => {
+        req.user = user;
+        next();
+      })
+      .catch(err => console.log(err));
+  });
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -44,24 +56,9 @@ app.use(errorController.get404);
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
-        User.findOne()
-            .then(user => {
-                if (!user) {
-                    const user = new User({
-                        name: 'Pranjal',
-                        email: 'pranjalmohansaxena@gmail.com',
-                        cart: {
-                            items: []
-                        }
-                    });
-                    return user.save();
-                }
-            })
-            .then(response => {
-                app.listen(3000, () => {
-                    console.log('Server started successfully at port: 3000');
-                });
-            })
+        app.listen(3000, () => {
+            console.log('Server started successfully at port: 3000');
+        });
     })
     .catch(err => console.log(err));
 

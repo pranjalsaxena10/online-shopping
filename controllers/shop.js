@@ -45,7 +45,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-    req.session.user
+    req.user
         .populate('cart.items.productId')
         .execPopulate()
         .then(user => {
@@ -70,7 +70,7 @@ exports.postCart = (req, res, next) => {
 
     Product.findById(prodId)
         .then(product => {
-            return req.session.user.addToCart(product);
+            return req.user.addToCart(product);
         })
         .then(result => {
             res.redirect('/cart');
@@ -82,14 +82,14 @@ exports.postCart = (req, res, next) => {
 exports.deleteCartItem = (req, res, next) => {
     const productId = req.body.productId;
     const deleteAll = JSON.parse(req.body.deleteAll);
-    req.session.user.deleteProductFromCart(productId, deleteAll)
+    req.user.deleteProductFromCart(productId, deleteAll)
         .then(() => res.redirect('/cart'))
         .catch(err => console.log(err));
     
 };
 
 exports.postOrder = (req, res, next) => {
-    req.session.user
+    req.user
         .populate('cart.items.productId')
         .execPopulate()
         .then(user => {
@@ -104,8 +104,8 @@ exports.postOrder = (req, res, next) => {
 
             const order = new Order({
                 user: {
-                    name: req.session.user.name,
-                    userId: req.session.user._id
+                    name: req.user.name,
+                    userId: req.user._id
                 },
                 products: cartItems,
                 totalOrderValue: totalPrice
@@ -114,7 +114,7 @@ exports.postOrder = (req, res, next) => {
             return order.save();
         })
         .then(response => {
-            return req.session.user.clearCart();
+            return req.user.clearCart();
         })
         .then(response => {
             res.redirect('/orders');
@@ -124,7 +124,7 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-    Order.find({ 'user.userId': req.session.user._id })
+    Order.find({ 'user.userId': req.user._id })
         .then(orders => {
             res.render('shop/orders', {
                 pageTitle: 'Your Orders', 
