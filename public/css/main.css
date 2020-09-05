@@ -30,7 +30,10 @@ form {
 .image img {
   height: 100%;
 }
-
+h4 {
+  color: floralwhite;
+  font: inherit;
+}
 .main-header {
   width: 100%;
   height: 3.5rem;

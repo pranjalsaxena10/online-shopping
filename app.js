@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
 const MongoDbSessionStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
+const csrfProtection = csrf();
 
 const path = require('path');
 const rootDir = require('./util/path');
@@ -36,6 +38,8 @@ app.use(session({
     store: sessionStore
 }));
 
+app.use(csrfProtection);
+
 app.use((req, res, next) => {
     if (!req.session.user) {
       return next();
@@ -46,7 +50,16 @@ app.use((req, res, next) => {
         next();
       })
       .catch(err => console.log(err));
-  });
+});
+
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  if (req.user) {
+    res.locals.userName = req.user.name;
+    res.locals.email = req.user.email;
+  }
+  next();
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
