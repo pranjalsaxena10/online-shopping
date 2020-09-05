@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const mailSender = require('../util/mailSender');
 
 exports.getLogin = (req, res, next) => {
     res.render('auth/login', { 
@@ -76,7 +77,15 @@ exports.postSignup = (req, res, next) => {
                         });
                         return user.save();
                     })
-                    .then(response => res.redirect('/login'))
+                    .then(response => { 
+                        mailSender.sendMail(email)
+                            .then(statusCode => {
+                                if (statusCode === 200) {
+                                    return res.redirect('/login');
+                                }
+                            })
+                            .catch(err => console.log(err));
+                    });
         })
         .catch(err => console.log(err));
 }

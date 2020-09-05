@@ -16,10 +16,11 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 const User = require('./models/User');
+const configProperties = require('./configs/config.json');
 
 const app = express();
 
-const MONGODB_URI = '';
+const MONGODB_URI = configProperties.mongoDbUrl;
 
 const sessionStore = new MongoDbSessionStore({
     uri: MONGODB_URI,
