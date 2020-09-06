@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const MongoDbSessionStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const csrfProtection = csrf();
+const flash = require('connect-flash');
 
 const path = require('path');
 const rootDir = require('./util/path');
@@ -40,6 +41,7 @@ app.use(session({
 }));
 
 app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
     if (!req.session.user) {

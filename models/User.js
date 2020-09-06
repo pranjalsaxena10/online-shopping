@@ -28,7 +28,9 @@ const userSchema = new Schema({
                 }
             }
         ]
-    }
+    },
+    resetPassToken: String,
+    resetPassTokenExpirationDate: Date
 });
 
 userSchema.methods.addToCart = function(product) {

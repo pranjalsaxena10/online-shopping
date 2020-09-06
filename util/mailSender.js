@@ -29,14 +29,14 @@ async function getSMTPTransport() {
 }
 
 
-async function sendMail(email) {
+async function sendMail(emailAddress, emailBody) {
     const successCode = 200;
     try {
         const mailOptions = {
             from: configProperties.fromEmailAddress,
-            to: email,
-            subject: 'Signup Succeded',
-            html: '<h1>Signup Successful</h1>' 
+            to: emailAddress,
+            subject: emailBody.subject,
+            html: emailBody.content 
         };
         const smtpTransport = await getSMTPTransport();
         smtpTransport.sendMail(mailOptions, (error, response) => {
